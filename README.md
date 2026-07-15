@@ -1,276 +1,158 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Coach App</title>
+    <!-- Tailwind CSS for modern Purple and Mint layout -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        .chat-container { height: calc(100vh - 220px); }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
 
-void main() => runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: DashboardScreen(),
-    ));
+    <!-- ========================================================== -->
+    <!-- 📅 DAY 1: DASHBOARD SCREEN (PRICING & CUSTOM SCENARIO) -->
+    <!-- ========================================================== -->
+    <div id="dashboard-screen" class="max-w-md mx-auto bg-white min-h-screen p-5 flex flex-col justify-between shadow-lg">
+        <div>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">English Coach</h1>
+                    <p class="text-sm text-gray-500">Ready for today's session?</p>
+                </div>
+            </div>
 
-// --- DATA MODEL FOR WHATSAPP STYLE CHAT (DAY 3) ---
-class ChatMessage {
-  String text;
-  bool isUser; // true = User (Right side), false = AI (Left side)
-  ChatMessage({required this.text, required this.isUser});
-}
-
-// ==========================================================
-// 📅 DAY 1: DASHBOARD SCREEN (PRICING & CUSTOM SCENARIO)
-// ==========================================================
-class DashboardScreen extends StatefulWidget {
-  @override
-  _DashboardScreenState createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int selectedTime = 15; // Default choice 15 mins
-  final TextEditingController scenarioController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text("English Coach", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("SELECT DURATION", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
-            SizedBox(height: 15),
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Select Duration</h2>
             
-            // 4 Price Cards Grid Layout
-            GridView.count(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              childAspectRatio: 1.4,
-              crossAxisSpacing: 15,
-              mainAxisSpacing: 15,
-              children: [
-                _buildTimeCard("Express", 15, "\$5.00"),
-                _buildTimeCard("Power", 30, "\$10.00"),
-                _buildTimeCard("Deep Dive", 45, "\$15.00"),
-                _buildTimeCard("Mastery", 60, "\$20.00"),
-              ],
-            ),
-            SizedBox(height: 30),
+            <!-- 4 Pricing Cards Grid Layout -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div onclick="selectDuration(15, this)" class="duration-card p-4 bg-purple-900 text-white rounded-2xl border-2 border-purple-900 cursor-pointer shadow-md transition-all">
+                    <p class="text-xs text-purple-200 font-medium">Express</p>
+                    <p class="text-xl font-bold my-1">15 mins</p>
+                    <span class="inline-block bg-emerald-400 text-white text-xs font-bold px-2 py-1 rounded-lg">$5.00</span>
+                </div>
+                <div onclick="selectDuration(30, this)" class="duration-card p-4 bg-gray-50 text-gray-800 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all">
+                    <p class="text-xs text-gray-500 font-medium">Power</p>
+                    <p class="text-xl font-bold my-1">30 mins</p>
+                    <span class="inline-block bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-lg">$10.00</span>
+                </div>
+                <div onclick="selectDuration(45, this)" class="duration-card p-4 bg-gray-50 text-gray-800 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all">
+                    <p class="text-xs text-gray-500 font-medium">Deep Dive</p>
+                    <p class="text-xl font-bold my-1">45 mins</p>
+                    <span class="inline-block bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-lg">$15.00</span>
+                </div>
+                <div onclick="selectDuration(60, this)" class="duration-card p-4 bg-gray-50 text-gray-800 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all">
+                    <p class="text-xs text-gray-500 font-medium">Mastery</p>
+                    <p class="text-xl font-bold my-1">1 hour</p>
+                    <span class="inline-block bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-lg">$20.00</span>
+                </div>
+            </div>
 
-            Text("FOCUS AREA", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
-            SizedBox(height: 10),
-            
-            // Custom dialog input text box
-            TextField(
-              controller: scenarioController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: "Custom Dialog Scenario",
-                labelStyle: TextStyle(color: Colors.deepPurple),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.deepPurple, width: 2),
-                ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                hintText: "E.g., Asking for directions at a busy airport terminal...",
-              ),
-            ),
-            Spacer(),
-            
-            // Session Start Button
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                ),
-                child: Text("Start Coaching Session >>", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        selectedMinutes: selectedTime,
-                        scenario: scenarioController.text.isEmpty ? "General Conversation" : scenarioController.text,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Focus Area</h2>
+            <div class="relative">
+                <label class="absolute -top-2 left-3 bg-white px-1 text-xs text-purple-700 font-medium">Custom Dialog Scenario</label>
+                <textarea id="scenario-input" class="w-full p-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-purple-900 resize-none h-24" placeholder="E.g., Asking for directions at a busy airport terminal..."></textarea>
+            </div>
+        </div>
 
-  // Helper widget to design pricing cards dynamically
-  Widget _buildTimeCard(String title, int mins, String price) {
-    bool isSelected = selectedTime == mins;
-    return GestureDetector(
-      onTap: () => setState(() => selectedTime = mins),
-      child: Container(
-        padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurple : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: isSelected ? Colors.deepPurple : Colors.grey.shade300, width: 2),
-          boxShadow: isSelected ? [BoxShadow(color: Colors.purple.withOpacity(0.2), blurRadius: 6, offset: Offset(0, 3))] : [],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(title, style: TextStyle(color: isSelected ? Colors.white70 : Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500)),
-            SizedBox(height: 4),
-            Text("$mins mins", style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: isSelected ? Colors.mintAccent.shade400 : Colors.green.shade500, borderRadius: BorderRadius.circular(8)),
-              child: Text(price, style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
+        <button onclick="startSession()" class="w-full bg-purple-900 hover:bg-purple-800 text-white font-bold py-4 rounded-full text-center shadow-lg transition-all transform active:scale-95 cursor-pointer mt-4">
+            Start Coaching Session >>
+        </button>
+    </div>
 
-// ==========================================================
-// 📅 DAY 2 & 3: COACHING CHAT SCREEN WITH LOCKING LOGIC
-// ==========================================================
-class ChatScreen extends StatefulWidget {
-  final int selectedMinutes;
-  final String scenario;
-  ChatScreen({required this.selectedMinutes, required this.scenario});
+    <!-- ========================================================== -->
+    <!-- 📅 DAY 2 & 3: COACHING CHAT SCREEN WITH LOCKING LOGIC -->
+    <!-- ========================================================== -->
+    <div id="chat-screen" class="max-w-md mx-auto bg-gray-50 min-h-screen flex flex-col justify-between shadow-lg hidden">
+        <!-- App Header with Back Control and Reverse Timer -->
+        <div class="bg-purple-900 text-white p-4 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-3">
+                <button onclick="backToDashboard()" class="text-white hover:text-purple-200 focus:outline-none cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div>
+                    <h2 id="chat-title-time" class="font-bold text-sm">Session: 15 mins</h2>
+                </div>
+            </div>
+            <div id="timer-display" class="text-2xl font-bold text-emerald-400">15:00</div>
+        </div>
 
-  @override
-  _ChatScreenState createState() => _ChatScreenState();
-}
+        <!-- Dynamic Warning Indicator Block Text -->
+        <div id="status-bar" class="bg-amber-50 text-amber-800 text-xs font-semibold p-2.html text-center border-b border-amber-200">
+            Bolnay ya likhnay ke liye pehle START button dabayein.
+        </div>
 
-class _ChatScreenState extends State<ChatScreen> {
-  late int _remainingSeconds;
-  Timer? _timer;
-  bool _isTimerRunning = false;
-  String _statusMessage = "Bolnay ya likhnay ke liye pehle START button dabayein.";
-  
-  // Chat list initiated with welcome message from AI Coach
-  List<ChatMessage> chatMessages = [
-    ChatMessage(text: "Hello! Welcome to your coaching session. Press START to begin speaking.", isUser: false)
-  ];
-  
-  final TextEditingController _textController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+        <!-- 💬 DAY 3: WHATSAPP STYLE CHAT BUBBLES AREA -->
+        <div id="chat-logs" class="chat-container p-4 overflow-y-auto flex flex-col space-y-3">
+            <!-- AI Welcome Bubble -->
+            <div class="flex justify-start">
+                <div class="bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm text-sm border border-gray-100 leading-relaxed">
+                    Hello! Welcome to your coaching session. Press START to begin speaking.
+                </div>
+            </div>
+        </div>
 
-  @override
-  void initState() {
-    super.initState();
-    _remainingSeconds = widget.selectedMinutes * 60; // Convert user selection to seconds
-  }
+        <!-- ⚙️ DAY 2: CONTROL PANEL WITH BLOCK / LOCK ACTION -->
+        <div class="p-3 bg-white border-t border-gray-200 flex items-center space-x-3">
+            <!-- Toggle Start/Pause Button -->
+            <button id="toggle-btn" onclick="toggleTimer()" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition-all cursor-pointer shadow-md">
+                START
+            </button>
 
-  // Day 2 Timer Logic with locking conditions
-  void _toggleTimer() {
-    if (_isTimerRunning) {
-      _timer?.cancel();
-      setState(() {
-        _isTimerRunning = false;
-        _statusMessage = "Class PAUSED! Chat aur mic block ho chuka hai.";
-      });
-    } else {
-      setState(() {
-        _isTimerRunning = true;
-        _statusMessage = "AI sun raha hai... Context: '${widget.scenario}'";
-      });
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-        if (_remainingSeconds > 0) {
-          setState(() => _remainingSeconds--);
-        } else {
-          _timer?.cancel();
-          _endClass();
+            <!-- Locked Input Container System -->
+            <div id="input-wrapper" class="flex-1 bg-gray-200 rounded-full px-4 py-1.5 flex items-center border border-gray-300 opacity-60">
+                <input id="chat-input" type="text" disabled class="flex-1 bg-transparent border-none outline-none text-sm py-1.5 placeholder-gray-500" placeholder="⚠️ Locked (Press START)" onkeypress="handleKeyPress(event)">
+                
+                <!-- Action Buttons Block Trigger Controls -->
+                <button id="send-btn" disabled onclick="sendTextMessage()" class="text-gray-400 p-1 ml-1 focus:outline-none">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                </button>
+                <button id="mic-btn" disabled onclick="simulateMicInput()" class="text-gray-400 p-1 ml-1 focus:outline-none">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ⚙️ APP LOGIC & ENGINE CONTROLS -->
+    <!-- ========================================================== -->
+    <script>
+        let selectedMinutes = 15;
+        let remainingSeconds = 15 * 60;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        function selectDuration(mins, element) {
+            selectedMinutes = mins;
+            document.querySelectorAll('.duration-card').forEach(card => {
+                card.className = "duration-card p-4 bg-gray-50 text-gray-800 rounded-2xl border-2 border-gray-200 cursor-pointer transition-all";
+                let badge = card.querySelector('span');
+                if(badge) badge.className = "inline-block bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-lg";
+            });
+            element.className = "duration-card p-4 bg-purple-900 text-white rounded-2xl border-2 border-purple-900 cursor-pointer shadow-md transition-all";
+            let badge = element.querySelector('span');
+            if(badge) badge.className = "inline-block bg-emerald-400 text-white text-xs font-bold px-2 py-1 rounded-lg";
         }
-      });
-    }
-  }
 
-  // Day 3 Text input management with automated dummy response simulation
-  void _sendMessage() {
-    if (_textController.text.trim().isEmpty) return;
-    setState(() {
-      chatMessages.add(ChatMessage(text: _textController.text, isUser: true));
-      _textController.clear();
-    });
-    
-    // Auto scroll down to view new bubble
-    _scrollToBottom();
-    
-    // Simulate AI thinking and replying after 1.5 seconds
-    Timer(Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          chatMessages.add(ChatMessage(text: "That is correct! Let's continue practicing our conversation context.", isUser: false));
-        });
-        _scrollToBottom();
-      }
-    });
-  }
+        function startSession() {
+            remainingSeconds = selectedMinutes * 60;
+            updateTimerDisplay();
+            document.getElementById('chat-title-time').innerText = `Session: ${selectedMinutes} mins`;
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('chat-screen').classList.remove('hidden');
+        }
 
-  void _scrollToBottom() {
-    Timer(Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
+        function backToDashboard() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            resetControlsUI();
+            document.getElementById('chat-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+        }
 
-  void _endClass() {
-    setState(() {
-      _isTimerRunning = false;
-      _statusMessage = "Time Over! Aaj ki class khatam.";
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _textController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context), // Day 2: Back button control
-        ),
-        title: Text("Session: ${widget.selectedMinutes} mins", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-        actions: [
-          Center(
-            child: Padding(
-              padding: EdgeInsets.only(right: 20),
-              child: Text(
-                '${(_remainingSeconds ~/ 60).toString().padLeft(2, '0')}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.greenAccent),
-              ),
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          // Warning indicator block text
-          Container(
+        function toggleTimer() {
+            const toggleBtn = document.getElementById('toggle-btn');
+            const statusBar = document.getElementById('status-bar');
